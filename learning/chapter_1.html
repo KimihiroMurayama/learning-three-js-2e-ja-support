@@ -3,8 +3,9 @@
 <html>
 
 <head>
-    <title>Example 01.02 - First Scene</title>
+    <title>my study</title>
     <script type="text/javascript" src="../libs/three.js"></script>
+    <div id='Stats-output'></div>
     <style>
         body {
             /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -36,13 +37,18 @@
         renderer.setClearColor(new THREE.Color(0xEEEEEE));
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // show axes in the screen
+        //スポットライトを追加する
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-20,30,-5);
+        scene.add(spotLight)
+
+        // 軸
         var axes = new THREE.AxisHelper(20);
         scene.add(axes);
 
-        // create the ground plane
+        // 板
         var planeGeometry = new THREE.PlaneGeometry(60, 20);
-        var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
+        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
         // rotate and position the plane
@@ -56,7 +62,7 @@
 
         // create a cube
         var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-        var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+        var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
         // position the cube
@@ -69,7 +75,7 @@
 
         // create a sphere
         var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
-        var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
+        var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x7777ff});
         var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
         // position the sphere
@@ -88,10 +94,34 @@
 
         // add the output of the renderer to the html element
         document.getElementById("WebGL-output").appendChild(renderer.domElement);
+        // renderScene();
 
+
+        //影を描写する
+        renderer.shadowMap.enabled = true;
+        //影を描画するマテリアルを指定する
+        cube.castShadow = true;
+        plane.receiveShadow = true;
+        sphere.castShadow = true;
+        //影を発生させることができる光源を選ぶ
+        spotLight.castShadow = true;
         // render the scene
         renderer.render(scene, camera);
     }
+    // function initStats() {
+    //     var stats = new Stats();
+    //     stats.setMode(0);
+    //     stats.domElement.style.position = 'absolute';
+    //     stats.domElement.style.left = '0px';
+    //     stats.domElement.style.top = '0px';
+    //     document.getElementById("Stats-output").appendChild(
+    //         stats.domElement);
+    //     return stats;
+    // }
+    // function renderScene() {
+    //     requestAnimationFrame(renderScene);
+    //     renderer.render(scene, camera)
+    // }
     window.onload = init;
 
 </script>
