@@ -5,6 +5,8 @@
 <head>
     <title>my study</title>
     <script type="text/javascript" src="../libs/three.js"></script>
+    <script type="text/javascript" src="../libs/stats.js"></script>
+    <script type="text/javascript" src="../libs/dat.gui.js"></script>
     <div id='Stats-output'></div>
     <style>
         body {
@@ -23,9 +25,21 @@
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
 
-    // once everything is loaded, we run our Three.js stuff.
+    var camera;
+    var scene;
+    var rederer;
     function init() {
+        //便利なやつ
+        var controls = new function() {
+            this.rotationSpeed = 0.02;
+            this.bouncingSpeed = 0.02;
+        }
+        var gui = new dat.GUI();
+        gui.add(controls, 'rotationSpeed', 0, 0.5);
+        gui.add(controls, 'bouncingSpeed', 0, 0.5);
 
+        // 計測系
+        var stats = initStats();
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         var scene = new THREE.Scene();
 
@@ -40,7 +54,10 @@
         //スポットライトを追加する
         var spotLight = new THREE.SpotLight(0xffffff);
         spotLight.position.set(-20,30,-5);
-        scene.add(spotLight)
+        scene.add(spotLight);
+        var cameraHelper = new THREE.CameraHelper(spotLight.shadow.camera);
+        cameraHelper.visible = false;
+        scene.add(cameraHelper);
 
         // 軸
         var axes = new THREE.AxisHelper(20);
@@ -94,35 +111,55 @@
 
         // add the output of the renderer to the html element
         document.getElementById("WebGL-output").appendChild(renderer.domElement);
-        // renderScene();
+        renderScene();
 
 
         //影を描写する
         renderer.shadowMap.enabled = true;
         //影を描画するマテリアルを指定する
-        cube.castShadow = true;
-        plane.receiveShadow = true;
-        sphere.castShadow = true;
+        // cube.castShadow = true;
+        // plane.receiveShadow = true;
+        // sphere.castShadow = true;
         //影を発生させることができる光源を選ぶ
-        spotLight.castShadow = true;
+        // spotLight.castShadow = true;
         // render the scene
         renderer.render(scene, camera);
+
+        function initStats() {
+        var stats = new Stats();
+        stats.setMode(0);
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+        document.getElementById("Stats-output").appendChild(stats.domElement);
+        return stats;
+
+        }
+        var step = 0;
+        function renderScene() {
+            stats.update();
+            // 立方体を回転させる
+            cube.rotation.x += controls.rotationSpeed;
+            cube.rotation.y += controls.rotationSpeed;
+            cube.rotation.z += controls.rotationSpeed;
+            // 球体をバウンドさせる
+            step += controls.bouncingSpeed;
+            sphere.position.x = 20 + (10 * (Math.cos(step)));
+            sphere.position.y = 2 + (10 * Math.abs(Math.sin(step)));
+            requestAnimationFrame(renderScene);
+            renderer.render(scene, camera)
+        }
+    window.addEventListener('resize', onResize, false);
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectMatrix();
+            renderer.setSize(window.innerWidth, windw.innerHeight)
+        }
     }
-    // function initStats() {
-    //     var stats = new Stats();
-    //     stats.setMode(0);
-    //     stats.domElement.style.position = 'absolute';
-    //     stats.domElement.style.left = '0px';
-    //     stats.domElement.style.top = '0px';
-    //     document.getElementById("Stats-output").appendChild(
-    //         stats.domElement);
-    //     return stats;
-    // }
-    // function renderScene() {
-    //     requestAnimationFrame(renderScene);
-    //     renderer.render(scene, camera)
-    // }
+
     window.onload = init;
+
 
 </script>
 </body>
